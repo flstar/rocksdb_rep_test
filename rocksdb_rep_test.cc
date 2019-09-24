@@ -13,6 +13,7 @@ rocksdb::DB * init_db(const char *path)
 {
 	rocksdb::Options options;
 	options.create_if_missing = true;
+	options.WAL_ttl_seconds = 3600;
 	rocksdb::DB *db = nullptr;
 	
 	rocksdb::Status status = rocksdb::DB::Open(options, path, &db);
@@ -63,9 +64,6 @@ void work_thread_entry()
 
 rocksdb::Status copy_rocksdb(const char *path)
 {
-	std::string cmd = std::string("rm -rf ") + path;
-	system(cmd.c_str());
-	
 	rocksdb::Checkpoint *ckpt = nullptr;
 	rocksdb::Status status = rocksdb::Checkpoint::Create(db, &ckpt);
 	if (!status.ok()) {
@@ -101,13 +99,13 @@ rocksdb::Status catch_up()
 	return rocksdb::Status::OK();
 }
 
-void sync_db2(const std::string &path2)
+void sync_db2(const char *path2)
 {
-	system(("rm -rf " + path2).c_str());
-	rocksdb::Status status = copy_rocksdb(path2.c_str());
+	system( (std::string("rm -rf ") + path2).c_str() );
+	rocksdb::Status status = copy_rocksdb(path2);
 	assert(status.ok());
 	
-	db2 = init_db(path2.c_str());
+	db2 = init_db(path2);
 	printf("Checkpoint ends at %ld\n", db2->GetLatestSequenceNumber());
 	
 	status = catch_up();
@@ -129,10 +127,10 @@ void sync_db2(const std::string &path2)
 
 int main()
 {
-	std::string dbpath("db"), dbpath2("db2");
+	const char dbpath[] = "db", dbpath2[] = "db2";
 	
-	system(("rm -rf " + dbpath).c_str());
-	db = init_db(dbpath.c_str());
+	system( (std::string("rm -rf ") + dbpath).c_str() );
+	db = init_db(dbpath);
 	
 	stop = false;
 	synced = false;
