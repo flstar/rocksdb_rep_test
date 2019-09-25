@@ -7,7 +7,7 @@ DEPS = $(SRCS:.cc=.d)
 
 ROCKSDB_DIR = ../rocksdb
 INCS = -I$(ROCKSDB_DIR)/include
-LIBS = -L$(ROCKSDB_DIR) -lrocksdb -lpthread -lz -lsnappy -lcrypto
+LIBS = -L$(ROCKSDB_DIR) -lrocksdb -lpthread -lz -lsnappy
 
 CXX = g++ --std=c++11
 CXXFLAGS = -g -MMD -Wall
