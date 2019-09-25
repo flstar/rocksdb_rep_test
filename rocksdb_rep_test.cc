@@ -71,6 +71,8 @@ rocksdb::Status copy_rocksdb(const char *path)
 	}
 
 	status = ckpt->CreateCheckpoint(path);
+	
+	delete ckpt;
 	return status;
 }
 
